@@ -20,18 +20,6 @@ public class Game {
 
     }
 
-    void endGame() {
-
-        p1Games = 0;
-        p2Games = 0;
-        p1Points = 0;
-        p2Points = 0;
-        rounds = 3;
-        p1Lives = 2;
-        p2Lives = 2;
-
-    }
-
     int action(int p1Action, int p2Action) {
 
         if(p1Action == Actions.SHOOT && p2Action != Actions.DEFEND) {
@@ -68,12 +56,15 @@ public class Game {
                     p2Games++;
                     roundWinner = 2;
                 }
+
                 restart();
                 return 3;
             }
 
             p1Lives = 2;
             p2Lives = 2;
+
+            restart();
 
             return 1;
         }

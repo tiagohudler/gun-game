@@ -7,7 +7,7 @@ public class Server {
     private final int PORT = 6543;
     private int connectingClients = 0;
 
-    public void Server() {
+    public Server() {
 
         try {
 
