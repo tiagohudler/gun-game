@@ -21,6 +21,7 @@ class GameThread extends Thread{
         ObjectInputStream input1;
         ObjectInputStream input2;
         Message p1message, p2message;
+        String p1Action, p2Action;
 
         try {
             output1 = new ObjectOutputStream(socket1.getOutputStream());
@@ -30,20 +31,46 @@ class GameThread extends Thread{
 
             // Define and first communication with players
 
-            output1.writeObject(new Message(0, 0, "You are player 1", 1));
+            output1.writeObject(new Message(0, 0, "You are player 1"));
             p1message = (Message) input1.readObject();
 
-            output2.writeObject(new Message(1, 0, "You are player 2", 1));
-            p2message = (Message) input1.readObject();
+            output2.writeObject(new Message(1, 0, "You are player 2"));
+            p2message = (Message) input2.readObject();
 
-
-            output1.writeObject(new Message(2, 0, "Game is starting", 1));
-            output2.writeObject(new Message(2, 0, "Game is starting", 1));
+            output1.writeObject(new Message(2, 0, "Game is starting"));
+            output2.writeObject(new Message(2, 0, "Game is starting"));
 
             while(true) {
                 p1message = (Message) input1.readObject();
                 p2message = (Message) input2.readObject();
 
+                game.action(p1message.action, p2message.action);
+
+                p1Action = switch (p1message.action) {
+                    case 1 -> "SHOOT";
+                    case 2 -> "DEFEND";
+                    case 3 -> "RELOAD";
+                    default -> "";
+                };
+                p2Action = switch (p2message.action) {
+                    case 1 -> "SHOOT";
+                    case 2 -> "DEFEND";
+                    case 3 -> "RELOAD";
+                    default -> "";
+                };
+
+                // each player receives the other player's action
+                p1message.code = 2;
+                p1message.message = "You used " + p1Action + " and Player 2 used " + p2Action + ".\n" +
+                "You have " + game.p1Lives + " lives.\n" + "Player 2 has " + game.p2Lives + " lives.";
+
+                output1.writeObject(p1message);
+
+                p2message.code = 2;
+                p2message.message = "You used " + p2Action + " and Player 1 used " + p1Action + ".\n" +
+                        "You have " + game.p2Lives + " lives.\n" + "Player 1 has " + game.p1Lives + " lives.";
+
+                output2.writeObject(p2message);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
