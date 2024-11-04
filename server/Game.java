@@ -43,8 +43,8 @@ public class Game {
                 return 4;
             }
 
-            if(p1Lives == 0) p2Points++;
-            else p1Points++;
+            if(p1Lives == 0) p2Points += 1;
+            else p1Points += 1;
             rounds--;
 
             // End game

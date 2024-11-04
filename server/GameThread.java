@@ -22,6 +22,7 @@ class GameThread extends Thread{
         ObjectInputStream input2;
         Message p1message, p2message;
         String p1Action, p2Action;
+        int gameResult;
 
         try {
             output1 = new ObjectOutputStream(socket1.getOutputStream());
@@ -44,33 +45,75 @@ class GameThread extends Thread{
                 p1message = (Message) input1.readObject();
                 p2message = (Message) input2.readObject();
 
-                game.action(p1message.action, p2message.action);
+                if (p2message.code == 2 && p1message.code == 2) {
+                    gameResult = game.action(p1message.action, p2message.action);
 
-                p1Action = switch (p1message.action) {
-                    case 1 -> "SHOOT";
-                    case 2 -> "DEFEND";
-                    case 3 -> "RELOAD";
-                    default -> "";
-                };
-                p2Action = switch (p2message.action) {
-                    case 1 -> "SHOOT";
-                    case 2 -> "DEFEND";
-                    case 3 -> "RELOAD";
-                    default -> "";
-                };
+                    p1message.code = gameResult;
+                    p2message.code = gameResult;
 
-                // each player receives the other player's action
-                p1message.code = 2;
-                p1message.message = "You used " + p1Action + " and Player 2 used " + p2Action + ".\n" +
-                "You have " + game.p1Lives + " lives.\n" + "Player 2 has " + game.p2Lives + " lives.";
+                    if (gameResult == 2) {
+                        p1Action = switch (p1message.action) {
+                            case 1 -> "SHOOT";
+                            case 2 -> "DEFEND";
+                            case 3 -> "RELOAD";
+                            default -> "";
+                        };
+                        p2Action = switch (p2message.action) {
+                            case 1 -> "SHOOT";
+                            case 2 -> "DEFEND";
+                            case 3 -> "RELOAD";
+                            default -> "";
+                        };
 
-                output1.writeObject(p1message);
+                        // each player receives the other player's action
+                        p1message.message = "You used " + p1Action + " and Player 2 used " + p2Action + ".\n" +
+                            "You have " + game.p1Lives + " lives.\n" + "Player 2 has " + game.p2Lives + " lives.";
 
-                p2message.code = 2;
-                p2message.message = "You used " + p2Action + " and Player 1 used " + p1Action + ".\n" +
-                        "You have " + game.p2Lives + " lives.\n" + "Player 1 has " + game.p1Lives + " lives.";
+                        output1.writeObject(p1message);
 
-                output2.writeObject(p2message);
+                        p2message.message = "You used " + p2Action + " and Player 1 used " + p1Action + ".\n" +
+                                "You have " + game.p2Lives + " lives.\n" + "Player 1 has " + game.p1Lives + " lives.";
+
+                        output2.writeObject(p2message);
+                    }
+                    else if (gameResult == 1) {
+                        p1message.message = "Round ended.\nYou (" + game.p1Points + ") x (" + game.p2Points + ") Player 2";
+                        p2message.message = "Round ended.\nYou (" + game.p2Points + ") x (" + game.p1Points + ") Player 1";
+
+                        output1.writeObject(p1message);
+                        output2.writeObject(p2message);
+                    }
+                    else if (gameResult == 4) {
+                        p2message.message = p1message.message = "Both players died. Lives and bullets are set to 1";
+
+                        output1.writeObject(p1message);
+                        output2.writeObject(p2message);
+                    }
+                    else if (gameResult == 3) {
+                        p1message.message = "Game is over.\nScore: You (" + game.p1Points + ") x (" + game.p2Points + ") Player 2";
+                        p2message.message = "Game is over.\nScore: You (" + game.p2Points + ") x (" + game.p1Points + ") Player 1";
+
+                        output1.writeObject(p1message);
+                        output2.writeObject(p2message);
+
+                        p1message = (Message) input1.readObject();
+                        p2message = (Message) input2.readObject();
+
+                        if(p1message.code == 3 || p2message.code == 3) {
+                            p1message.message = p2message.message = "One player doesn't want a rematch. Game terminated.";
+                            p1message.code = p2message.code = 3;
+                            output1.writeObject(p1message);
+                            output2.writeObject(p2message);
+                            Thread.currentThread().interrupt();
+                        }
+                        else {
+                            p1message.message = p2message.message = "Both players want a rematch. Starting another game.";
+                            p1message.code = p2message.code = 2;
+                            output1.writeObject(p1message);
+                            output2.writeObject(p2message);
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
