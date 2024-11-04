@@ -33,6 +33,8 @@ public class Client {
             while(true) {
                 message = (Message) input.readObject();
 
+                if(message.playerHit) bullets = 1;
+
                 if(message.code == 2 || message.code == 1) {
                     System.out.println(message.message);
                     System.out.println("Please enter your action");
@@ -58,7 +60,6 @@ public class Client {
                     output.writeObject(message);
                 }
                 else if(message.code == 4) {
-                    bullets = 1;
 
                     System.out.println(message.message);
                     System.out.println("Please enter your action");
@@ -77,7 +78,6 @@ public class Client {
                     output.writeObject(message);
                 }
                 else if(message.code == 3) {
-                    bullets = 1;
 
                     System.out.println(message.message);
                     System.out.println("Would you like to play again?");

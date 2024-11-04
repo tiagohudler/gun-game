@@ -11,8 +11,16 @@ public class Game {
     int p1Lives = 2;
     int p2Lives = 2;
     int roundWinner;
+    boolean playerHit;
 
     void restart() {
+
+        p1Lives = 2;
+        p2Lives = 2;
+
+    }
+
+    void hardRestart() {
 
         p1Points = 0;
         p2Points = 0;
@@ -24,12 +32,16 @@ public class Game {
 
     int action(int p1Action, int p2Action) {
 
+        playerHit = false;
+
         if(p1Action == Actions.SHOOT && p2Action != Actions.DEFEND) {
             p2Lives--;
+            playerHit = true;
         }
 
         if(p2Action == Actions.SHOOT && p1Action != Actions.DEFEND) {
             p1Lives--;
+            playerHit = true;
         }
 
         if(p1Lives == 0 || p2Lives ==0) {
@@ -59,7 +71,7 @@ public class Game {
                     roundWinner = 2;
                 }
 
-                restart();
+                hardRestart();
                 return 3;
             }
 

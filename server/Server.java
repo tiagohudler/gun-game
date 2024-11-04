@@ -21,6 +21,8 @@ public class Server {
                 System.out.println("Waiting for player 2");
                 socket2 = server.accept();
 
+                System.out.println("A new game has started\n------------------------------------------------------------\n");
+
                 GameThread newGame = new GameThread(socket1, socket2);
                 newGame.start();
 

@@ -41,7 +41,7 @@ class GameThread extends Thread{
             output1.writeObject(new Message(2, 0, "Game is starting"));
             output2.writeObject(new Message(2, 0, "Game is starting"));
 
-            while(true) {
+            while(!this.isInterrupted()) {
                 p1message = (Message) input1.readObject();
                 p2message = (Message) input2.readObject();
 
@@ -50,6 +50,8 @@ class GameThread extends Thread{
 
                     p1message.code = gameResult;
                     p2message.code = gameResult;
+
+                    p1message.playerHit = p2message.playerHit = game.playerHit;
 
                     if (gameResult == 2) {
                         p1Action = switch (p1message.action) {
@@ -90,8 +92,8 @@ class GameThread extends Thread{
                         output2.writeObject(p2message);
                     }
                     else if (gameResult == 3) {
-                        p1message.message = "Game is over.\nScore: You (" + game.p1Points + ") x (" + game.p2Points + ") Player 2";
-                        p2message.message = "Game is over.\nScore: You (" + game.p2Points + ") x (" + game.p1Points + ") Player 1";
+                        p1message.message = "Game is over.\nScore: You (" + game.p1Games + ") x (" + game.p2Games + ") Player 2";
+                        p2message.message = "Game is over.\nScore: You (" + game.p2Games + ") x (" + game.p1Games + ") Player 1";
 
                         output1.writeObject(p1message);
                         output2.writeObject(p2message);
@@ -104,7 +106,9 @@ class GameThread extends Thread{
                             p1message.code = p2message.code = 3;
                             output1.writeObject(p1message);
                             output2.writeObject(p2message);
-                            Thread.currentThread().interrupt();
+                            socket1.close();
+                            socket2.close();
+                            this.interrupt();
                         }
                         else {
                             p1message.message = p2message.message = "Both players want a rematch. Starting another game.";
