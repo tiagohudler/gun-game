@@ -6,7 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 class GameThread extends Thread{
-    private Game game = new Game();
+    private final Game game = new Game();
     private Socket socket1 = null;
     private Socket socket2 = null;
 
@@ -33,10 +33,10 @@ class GameThread extends Thread{
             // Define and first communication with players
 
             output1.writeObject(new Message(0, 0, "You are player 1"));
-            p1message = (Message) input1.readObject();
+            input1.readObject();
 
             output2.writeObject(new Message(1, 0, "You are player 2"));
-            p2message = (Message) input2.readObject();
+            input2.readObject();
 
             output1.writeObject(new Message(2, 0, "Game is starting"));
             output2.writeObject(new Message(2, 0, "Game is starting"));

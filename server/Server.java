@@ -5,7 +5,6 @@ import java.net.*;
 
 public class Server {
     private static final int PORT = 6543;
-    private int connectingClients = 0;
 
     public static void main(String[] args) {
 

@@ -2,7 +2,7 @@ package server;
 
 import resources.Actions;
 
-public class Game {
+class Game {
     int p1Games = 0;
     int p2Games = 0;
     int p1Points = 0;
